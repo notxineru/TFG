@@ -285,7 +285,7 @@ def parse_single_date(press, tem):
 def print_results_to_file(lat, lon, dates, results_fit):
     input_fn = sys.argv[1]
     base = os.path.basename(input_fn)
-    output_fn = os.path.join('Results', os.path.splitext(base)[0] + postfix + '.csv')
+    output_fn = os.path.join('Results', os.path.splitext(base)[0] + '_' + postfix + '.csv')
 
     print('Writing results to ' + output_fn)
 
@@ -306,6 +306,7 @@ def print_results_to_file(lat, lon, dates, results_fit):
 if __name__ == '__main__':
     t_0 = time.time()
 
+    print('Loading data...')
     lat, lon, pres, temps, dates = extract_data_from_file()
 
     pool_arguments = [[pres[:, 0], temps[:, i]] for i in range(size(dates))]
