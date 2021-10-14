@@ -3,21 +3,20 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.io import loadmat
 import os
+import sys
 
-file_name = 'Time_series_Abril_R.csv'
-path = 'Results/' + file_name
+def import_data(file_name):
+    file_name = 'Time_series_Abril_R.csv'
+    # path = '../Results/' + file_name
+    # df_fit = pd.read_csv(path)
+    data = loadmat(
+        '../data/thermistor_chain/AGL_Abril_2019/Time_series/Time_series_Abril.mat')
 
-df_fit = pd.read_csv(path)
+    tems = data['tems']
+    pres = data['pres']
+    dates = data['dates']
 
-data = loadmat(
-    'data/thermistor_chain/AGL_Abril_2019/Time_series/Time_series_Abril.mat')
-
-print('ola')
-
-tems = data['tems']
-pres = data['pres']
-dates = data['dates']
-print(np.size(dates))
+    return tems, pres, dates
 
 def fit_fun(z, df):
     D1, b2, c2 = df['D1m'], df['c2m'], df['a2m']
@@ -52,6 +51,8 @@ def plot_profile_fit(number):
     ax.set_ylim(pres[-1] + 10, 0)
 
     ax.plot(fit_fun(zz, df_fit.iloc[number]), zz)
+    ax.set_xlabel('Temperatura (ºC)')
+    ax.set_ylabel('Profundidad (mb)')
 
     plt.show()
 
@@ -77,8 +78,9 @@ def plot_worst_fit_profiles(df, number):
 
 # plot_worst_fit_profiles(df_fit, 4)
 
-profiles = (np.linspace(0, np.size(dates) - 1, 10, dtype='int'))
-print(profiles)
-for profile in profiles:
-    print(profile)
-    plot_profile_fit(profile)
+if '__name__' == '__main__':
+    profiles = (np.linspace(0, np.size(dates) - 1, 10, dtype='int'))
+    print(profiles)
+    for profile in profiles:
+        print(profile)
+        plot_profile_fit(profile)

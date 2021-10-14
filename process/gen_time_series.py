@@ -18,6 +18,7 @@ mat_files = [file for x in order for file in mat_files if x in file]
 data = [loadmat(file) for file in mat_files]
 
 def extract_variable(variable, data):
+
     return np.array([thermistor[variable][:n].reshape(n) for thermistor in data], dtype='object')
 
 tems = extract_variable('tem', data)
