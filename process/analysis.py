@@ -7,16 +7,15 @@ import sys
 
 def import_data(file_name):
     file_name = 'Time_series_Abril_R.csv'
-    # path = '../Results/' + file_name
-    # df_fit = pd.read_csv(path)
+    path = '../results/' + file_name
+    df_fit = pd.read_csv(path)
     data = loadmat(
         '../data/thermistor_chain/AGL_Abril_2019/Time_series/Time_series_Abril.mat')
 
     tems = data['tems']
     pres = data['pres']
-    dates = data['dates']
 
-    return tems, pres, dates
+    return tems, pres, df_fit
 
 def fit_fun(z, df):
     D1, b2, c2 = df['D1m'], df['c2m'], df['a2m']
@@ -28,9 +27,9 @@ def fit_fun(z, df):
     return a1 + pos *(b3 *(z - D1) + a2 *(np.exp(zaux) - 1.0))
 
 
-def plot_fit_variable(variable, interval=None, save=False):
-    var = df_fit[variable][::interval]
-    dates = df_fit['Dates'][::interval]
+def plot_fit_variable(df, variable, interval=None, save=False):
+    var = df[variable][::interval]
+    dates = df['Dates'][::interval]
 
     fig, ax = plt.subplots()
     ax.scatter(dates, var, s=8)
@@ -41,46 +40,53 @@ def plot_fit_variable(variable, interval=None, save=False):
     plt.show()
 
 
-def plot_profile_fit(number):
+def plot_profile_fit(df, tems, pres, number):
     temp = tems[:, number]
 
     zz = np.linspace(0, 200, 300)
+
     fig, ax = plt.subplots()
-    ax.scatter(temp, pres, marker='o', c='tab:red')
-    ax.axhline(df_fit.iloc[number, 3], c='grey', ls='--')
+    ax.scatter(temp, pres, marker='o', fc='None', ec='tab:red')
+    ax.axhline(df.iloc[number, 3], c='grey', ls='--')
     ax.set_ylim(pres[-1] + 10, 0)
 
-    ax.plot(fit_fun(zz, df_fit.iloc[number]), zz)
+    ax.plot(fit_fun(zz, df.iloc[number]), zz)
     ax.set_xlabel('Temperatura (ºC)')
     ax.set_ylabel('Profundidad (mb)')
 
     plt.show()
 
 
-def compute_physical_parameters(df):
-    alfa = 0.5
+def compute_physical_parameters(df, alfa=0.05):
     b2 = df['b2m']
     c2 = df['c2m']
     D = df['D1m']
-    l = 2 *c2 /b2**2
-    Delta = -  b2 /2 /c2 *(1 -(1 -2 *l *np.log(alfa)**0.5))
-    temp_gradient = 1 /Delta *(fit_fun(D, df) - fit_fun(D + Delta, df))
 
+    l = 2 *c2 /b2**2
+    Delta = -  b2 /2 /c2 *(1 - (1 - 2 *l *np.log(alfa)**0.5))
+
+    def compute_G(D, alfa):
+        G = (fit_fun(D, df) - fit_fun(D + Delta, df)) /Delta
+        return G
+
+    df = df.assign(G95=lambda x: compute_G(x.D1m, alfa))
 
 # plot_fit_variable('a2m', 1000)
 
 def plot_worst_fit_profiles(df, number):
-    em = df['em']
-    profiles = df.index[df['em'] > 2]
+    em=df['em']
+    profiles=df.index[df['em'] > 2]
     print(profiles)
     for profile in profiles:
         plot_profile_fit(profile)
 
 # plot_worst_fit_profiles(df_fit, 4)
 
-if '__name__' == '__main__':
-    profiles = (np.linspace(0, np.size(dates) - 1, 10, dtype='int'))
-    print(profiles)
-    for profile in profiles:
-        print(profile)
-        plot_profile_fit(profile)
+if __name__ == '__main__':
+    # profiles=(np.linspace(0, np.size(dates) - 1, 10, dtype='int'))
+    # print(profiles)
+    # for profile in profiles:
+    # print(profile)
+    # plot_profile_fit(profile)
+    temp, pres, df_fit = import_data('Time_series_Abril_R.csv')
+    compute_physical_parameters(df_fit)
