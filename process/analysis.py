@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.io import loadmat
+# from scipy.fftpack import fft, fftfreq
+from numpy.fft import fft, fftfreq
 import os
 import sys
 
@@ -63,22 +65,50 @@ def compute_physical_parameters(df, alfa=0.05):
     D = df['D1m']
 
     l = 2 *c2 /b2**2
-    Delta = -  b2 /2 /c2 *(1 - (1 - 2 *l *np.log(alfa)**0.5))
+    Delta = -b2 /2 /c2 *(1 - (1 - 2 *l *np.log(alfa))**0.5)
+
+    print(Delta)
 
     def compute_G(D, alfa):
         G = (fit_fun(D, df) - fit_fun(D + Delta, df)) /Delta
         return G
 
+    file_name = 'Time_series_Abril_R.csv'
+    path = '../results/' + file_name
+
+    print('Hey')
     df = df.assign(G95=lambda x: compute_G(x.D1m, alfa))
+    df.to_csv(path, index=False)
+    print('finished')
+
 
 # plot_fit_variable('a2m', 1000)
 
 def plot_worst_fit_profiles(df, number):
-    em=df['em']
+    em = df['em']
     profiles=df.index[df['em'] > 2]
     print(profiles)
     for profile in profiles:
         plot_profile_fit(profile)
+
+def spectral_analysis(df, variable, dt=5):
+    signal = df[variable]
+    n = np.size(signal)
+    fourier = fft(signal)
+    freq = fftfreq(n, d=dt)
+    indices = np.where(freq > 0)
+    freq = freq[indices]
+    fourier = abs(fourier[indices])
+    t = np.linspace(1, n, n)
+    period = 1 /freq
+
+    fig, ax = plt.subplots()
+    ax.plot(freq, fourier)
+    ax.set_xlabel('Frecuencia (Hz)')
+    ax.set_ylabel('Magnitud')
+    ax.set_xlim(0, 0.0001)
+    plt.show()
+
 
 # plot_worst_fit_profiles(df_fit, 4)
 
@@ -89,4 +119,5 @@ if __name__ == '__main__':
     # print(profile)
     # plot_profile_fit(profile)
     temp, pres, df_fit = import_data('Time_series_Abril_R.csv')
-    compute_physical_parameters(df_fit)
+    plot_fit_variable(df_fit, 'D1m')
+    # spectral_analysis(df_fit, 'D1m')
