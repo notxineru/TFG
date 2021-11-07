@@ -96,7 +96,7 @@ def plot_multiple_profiles(df, tems, pres, profile_numbers):
 
     zz = np.linspace(0, 200, 300)
 
-    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    fig, axes = plt.subplots(2, 2, figsize=(6.5, 6))
     axes = axes.reshape(4)
 
     for ax, number in zip(axes, profile_numbers):
@@ -109,6 +109,7 @@ def plot_multiple_profiles(df, tems, pres, profile_numbers):
         ax.plot(fit_fun(zz, df.iloc[number]), zz)
         ax.set_xlabel('Temperatura (ºC)')
         ax.set_ylabel('Profundidad (mb)')
+
     fig.tight_layout()
     plt.show()
 
