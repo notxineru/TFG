@@ -113,7 +113,7 @@ def plot_multiple_profiles(df, tems, pres, profile_numbers):
     fig.tight_layout()
     plt.show()
 
-def animate_profile_evolution(df, tems, pres, start_number, final_number, number_plots):
+def animate_profile_evolution(df, tems, pres, start_number, final_number, number_plots, file_name):
     numbers = np.linspace(start_number, final_number, number_plots, dtype='int')
     zz = np.linspace(0, 200, 300)
 
@@ -134,8 +134,8 @@ def animate_profile_evolution(df, tems, pres, start_number, final_number, number
         line.set_data(fit_fun(zz, df.iloc[i]), zz)
         title.set_text('nº: {}'.format(i))
 
-    ani = FuncAnimation(fig, animate, frames=numbers, interval=100)
-    ani.save('Comportamiento_anómalo_fin_serie.mp4')
+    ani = FuncAnimation(fig, animate, frames=numbers, interval=80)
+    ani.save(f'../results/{file_name}')
 
 
 def spectral_analysis(df, variable, dt=5):
@@ -161,6 +161,6 @@ def spectral_analysis(df, variable, dt=5):
 if __name__ == '__main__':
     tems, pres, df_fit = import_data('Time_Series_Abril')
     n = len(df_fit['Dates'])
-    animate_profile_evolution(df_fit, tems, pres, 2471000, 2480000, 220)
+    animate_profile_evolution(df_fit, tems, pres, 0, n -1, 250, 'Complete_series_animation.mp4')
     # plot_mutiple_profiles(df_fit, tems, pres, [1, 2, 3, 4])
     # plot_fit_variable(df_fit, 'a3m', 100)
