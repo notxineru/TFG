@@ -117,21 +117,24 @@ def animate_profile_evolution(df, tems, pres, start_number, final_number, number
     numbers = np.linspace(start_number, final_number, number_plots, dtype='int')
     zz = np.linspace(0, 200, 300)
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6.5, 6))
     ax.set_xlim((10, 20))
     ax.set_xlabel('Temperatura (ºC)')
     ax.set_ylabel('Profundidad (mb)')
     ax.set_ylim(pres[-1] + 10, 0)
+    ax.set_xlim(9.5, 18)
     fig.tight_layout()
 
     points, = ax.plot([], [], 'o', mfc='None', mec='tab:red')
     line, = ax.plot([], [], c='tab:blue')
-    title = ax.text(0.8, 0.9, '', bbox={'facecolor': 'w', 'alpha': 0.5,
-                                        'pad': 5}, transform=ax.transAxes, ha='center')
+    mld, = ax.plot([], [], c='grey', ls='--')
+    title = ax.text(0.85, 0.9, '', bbox={'facecolor': 'w', 'alpha': 0.5,
+                                         'pad': 5}, transform=ax.transAxes, ha='center')
 
     def animate(i):
         points.set_data(tems[:, i], pres)
         line.set_data(fit_fun(zz, df.iloc[i]), zz)
+        mld.set_data((9.5, 18), (df.iloc[i, 3], df.iloc[i, 3]))
         title.set_text('nº: {}'.format(i))
 
     ani = FuncAnimation(fig, animate, frames=numbers, interval=80)
@@ -161,6 +164,6 @@ def spectral_analysis(df, variable, dt=5):
 if __name__ == '__main__':
     tems, pres, df_fit = import_data('Time_Series_Abril')
     n = len(df_fit['Dates'])
-    animate_profile_evolution(df_fit, tems, pres, 0, n -1, 250, 'Complete_series_animation.mp4')
+    animate_profile_evolution(df_fit, tems, pres, 0, n -1, 250, 'Animación_serie_completa.mp4')
     # plot_mutiple_profiles(df_fit, tems, pres, [1, 2, 3, 4])
     # plot_fit_variable(df_fit, 'a3m', 100)
